@@ -28,9 +28,7 @@ vectorstore = load_vectorstore()
 retriever = vectorstore.as_retriever(search_type="similarity", search_kwargs={"k": 3})
 
 # ✅ Prompt template
-system_prompt = """You are a helpful assistant for a restaurant.
-Use the following pieces of context to answer the question at the end.
-If you don't know the answer, just be nice and say something else to entertain the user. 
+system_prompt = """You are a helpful assistant that can answer questions raised regarding the Greencard. Answer questions only from the context and if you dont find the answer in the context tell you dont know. 
 
 CONTEXT: {context}
 QUESTION: {question}"""
@@ -59,3 +57,4 @@ if question:
     with st.expander("See sources"):
         for doc in response["source_documents"]:
             st.write(f"- {doc.page_content}")
+
