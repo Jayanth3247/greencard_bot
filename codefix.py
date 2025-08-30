@@ -4,6 +4,7 @@ from langchain.chains import RetrievalQA
 from langchain.document_loaders import CSVLoader
 from langchain.vectorstores import FAISS
 from langchain.prompts import PromptTemplate
+import asyncio
 
 # ✅ Set up LLM
 # Note: Use a valid API key from a secure source, this is a placeholder.
@@ -19,6 +20,14 @@ except Exception as e:
 def load_vectorstore():
     """Loads and caches the FAISS vector store from the CSV file."""
     try:
+        # Fix for deployment issue: Ensure an asyncio event loop is running.
+        # This is necessary for GoogleGenerativeAIEmbeddings when running in a separate thread.
+        try:
+            asyncio.get_event_loop()
+        except RuntimeError:
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            
         loader = CSVLoader(file_path="green_card_faq2.csv", source_column="Question")
         data = loader.load()
         embeddings = GoogleGenerativeAIEmbeddings(
@@ -59,7 +68,7 @@ qa_chain = RetrievalQA.from_chain_type(
 )
 
 # ✅ Streamlit UI
-#st.set_page_config(page_title="Green Card FAQ Bot", page_icon="🍃")
+st.set_page_config(page_title="Green Card FAQ Bot", page_icon="🍃")
 st.title("🍃 Green Card FAQ Bot (Gemini-2.0-flash)")
 st.caption("Ask me a question about U.S. green cards.")
 
